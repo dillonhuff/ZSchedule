@@ -1,0 +1,6 @@
+
+namespace ZSchedule {
+
+  void asapSchedule();
+
+}
