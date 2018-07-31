@@ -17,13 +17,13 @@ namespace ZSchedule {
     expr x = c.int_const("x");
     expr y = c.int_const("y");
     opt.add(10 >= x && x >= 0);
-    opt.add(10 >= y && y >= 0);
-    opt.add(x + y <= 11);
-    optimize::handle h1 = opt.maximize(x);
+    optimize::handle h1 = opt.maximize(x + 7);
 
     opt.check();
 
-    cout << "x = " << opt.lower(h1) << endl;
+    cout << "x + 7 = " << opt.lower(h1) << endl;
+    model m = opt.get_model();
+    cout << "x = " << m.eval(x) << endl;
 
     cout << "Got schedule" << endl;
   }
