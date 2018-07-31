@@ -13,11 +13,10 @@ INCLUDE_DIRECTORIES(./src/)
 
 SET(CPP_FILES ./src/schedule.cpp)
 
-
 add_library(zschedule ${CPP_FILES})
 
 # Test executables
 SET(ALL_TEST_FILES ./test/schedule_tests.cpp)
 
 add_executable(all-tests test/test_main.cpp ${ALL_TEST_FILES})
-target_link_libraries(all-tests zschedule dl coreir coreir-rtlil coreir-commonlib)
+target_link_libraries(all-tests zschedule dl coreir coreir-rtlil coreir-commonlib z3)
