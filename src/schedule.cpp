@@ -50,9 +50,29 @@ namespace ZSchedule {
     string time = "time_";
     string space = "space_";
 
+    expr maxTime = c.int_val(cycleConstraint);
+    expr maxArea = c.int_val(areaConstraint);
+    
     map<NodeId, expr> spaceVars;
     map<NodeId, expr> timeVars;
 
+    map<string, expr> resourceCounts;
+    for (auto s : sched) {
+      expr sVar = c.int_const(("rc_num_" + s.first).c_str());
+      resourceCounts.insert({s.first, sVar});
+    }
+
+    // Create area cost
+    expr areaCost = c.int_val(0);
+    for (auto rc : resourceCounts) {
+      areaCost = areaCost + c.int_val(map_find(rc.first, resourceCosts)) * rc.second;
+    }
+
+    cout << "Area constraint = " << areaCost << endl;
+    
+    s.add(maxArea >= areaCost);
+
+    // Create spacetime vars
     for (auto node : app.getNodeIds()) {
       expr t = c.int_const((time + to_string(node)).c_str());
       expr s = c.int_const((space + to_string(node)).c_str());
@@ -70,18 +90,37 @@ namespace ZSchedule {
       }
     }
 
-    expr maxTime = c.int_val(cycleConstraint);
-    expr maxArea = c.int_val(areaConstraint);
+    // Add location constraints
+    expr spaceBound = c.int_val(0);
+    for (auto rc : resourceCounts) {
+      string resourceName = rc.first;
+      for (auto node : app.getNodeIds()) {
+        if (app.getNode(node).getOpName() == resourceName) {
+          auto nodeSpace = map_find(node, spaceVars);
+          s.add(spaceBound <= nodeSpace);
+          s.add(nodeSpace < spaceBound + rc.second);
+        }
+      }
 
-    //s.add(10 >= x && x >= 0);
+      spaceBound = spaceBound + rc.second;
+    }
+
+    // SAT?
     s.check();
 
+    // Extract and print model
     model m = s.get_model();
     for (auto node : app.getNodeIds()) {
       cout << (space + to_string(node)) << " = " <<  m.eval(map_find(node, spaceVars)) << endl;
-      cout << (time + to_string(node)) << " = " <<  m.eval(map_find(node, timeVars)) << endl;
+      cout << (time + to_string(node)) << "  = " <<  m.eval(map_find(node, timeVars)) << endl;
+      cout << "-----" << endl;
+    }
+
+    for (auto rc : resourceCounts) {
+      cout << rc.first << " count = " << m.eval(rc.second) << endl;
     }
     cout << "Got schedule" << endl;
+
 
     return Schedule(sched);
   }
