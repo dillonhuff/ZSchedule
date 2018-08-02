@@ -25,7 +25,7 @@ namespace ZSchedule {
 
     map<string, int> computeCosts{{"in", 1}, {"out", 1}, {"neg", 1}};
     int cycleConstraint = 1;
-    int areaConstraint = 200;
+    int areaConstraint = 5;
 
     Schedule result = createSchedule(cycleConstraint, computeCosts, areaConstraint, app);
 

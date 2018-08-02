@@ -125,8 +125,61 @@ namespace ZSchedule {
     for (auto rc : resourceCounts) {
       cout << rc.first << " count = " << m.eval(rc.second) << endl;
     }
-    cout << "Got schedule" << endl;
 
+    cout << "Solver found schedule, converting back to table representation" << endl;
+
+    for (auto unit : sched) {
+      auto& opSched = sched[unit.first];
+
+      for (int space = 0; space < areaConstraint; space++) {
+
+        UnitSchedule times;
+        for (int time = 0; time < cycleConstraint; time++) {
+          times.operations.push_back(0);
+        }
+
+        opSched.schedules.push_back(times);
+      }
+    }
+
+    for (auto node : app.getNodeIds()) {
+      string opName = app.getNode(node).getOpName();
+      auto& opSched = sched[opName];
+
+      cout << "opSched size = " << opSched.schedules.size() << endl;
+
+      int spacePosition = m.eval(map_find(node, spaceVars)).get_numeral_int64();
+
+      cout << "space position = " << spacePosition << endl;
+      cout << "opSched size   = " << opSched.schedules.size() << endl;
+
+      // if (opSched.schedules.size() <= spacePosition) {
+      //   opSched.schedules[spacePosition] = {};
+      // }
+
+      cout << "Set space pos" << endl;
+      
+      auto& ops = opSched.schedules[spacePosition];
+
+      int timePosition = m.eval(map_find(node, timeVars)).get_numeral_int64();
+      // if (ops.operations.size() <= timePosition) {
+      //   ops.operations[timePosition] = timePosition;
+      // }
+
+      cout << "Set time pos, to " << node << endl;
+
+      ops.operations[timePosition] = node;
+      cout << "Done with node" << endl;
+    }
+
+    cout << "Final schedule" << endl;
+    for (auto unit : sched) {
+      for (auto uSched : unit.second.schedules) {
+        for (auto node : uSched.operations) {
+          cout << node << endl;
+        }
+      }
+    }
 
     return Schedule(sched);
   }
