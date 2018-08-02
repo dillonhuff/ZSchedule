@@ -9,7 +9,11 @@ using namespace z3;
 
 namespace ZSchedule {
 
-  void asapSchedule() {
+  void emitVerilog(const STG& stg, const std::string& fileName) {
+    
+  }
+
+  STG asapSchedule(const CDFG& app) {
     context c;
     optimize opt(c);
     params p(c);
@@ -26,6 +30,8 @@ namespace ZSchedule {
     cout << "x = " << m.eval(x) << endl;
 
     cout << "Got schedule" << endl;
+
+    return STG();
   }
 
 }
