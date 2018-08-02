@@ -156,13 +156,35 @@ namespace ZSchedule {
 
     cout << "Solver found schedule, converting back to table representation" << endl;
 
+    // int totalArea = areaConstraint;
+    // int totalTime = cycleConstraint;
+
+    int totalArea = 0;
+    int totalTime = 0;
+    
+    for (auto node : app.getNodeIds()) {
+      int spacePosition = m.eval(map_find(node, spaceVars)).get_numeral_int64();
+      int timePosition = m.eval(map_find(node, timeVars)).get_numeral_int64();
+
+      if (spacePosition > totalArea) {
+        totalArea = spacePosition;
+      }
+
+      if (timePosition > totalTime) {
+        totalTime = timePosition;
+      }
+    }
+
+    totalArea += 1;
+    totalTime += 1;
+
     for (auto unit : sched) {
       auto& opSched = sched[unit.first];
 
-      for (int space = 0; space < areaConstraint; space++) {
+      for (int space = 0; space < totalArea; space++) {
 
         UnitSchedule times;
-        for (int time = 0; time < cycleConstraint; time++) {
+        for (int time = 0; time < totalTime; time++) {
           times.operations.push_back(0);
         }
 

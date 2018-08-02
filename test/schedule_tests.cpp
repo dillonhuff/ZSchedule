@@ -88,7 +88,7 @@ namespace ZSchedule {
     REQUIRE(scheduleContainsAllNodes(result, app));
   }
 
-  TEST_CASE("Vector add") {
+  TEST_CASE("Vector add without enough resources for simultaneous addition") {
     CDFG app;
 
     ComputeUnit i("in", 0);
@@ -104,9 +104,9 @@ namespace ZSchedule {
     app.directedEdge(in1, a0);
     app.directedEdge(a0, out);
 
-    map<string, int> computeCosts{{"in", 100}, {"out", 1}, {"add", 1}};
-    int cycleConstraint = 5;
-    int areaConstraint = 104;
+    map<string, int> computeCosts{{"in", 8}, {"out", 1}, {"add", 1}};
+    int cycleConstraint = 3;
+    int areaConstraint = 10;
 
     Schedule result =
       createSchedule(cycleConstraint, computeCosts, areaConstraint, app);
