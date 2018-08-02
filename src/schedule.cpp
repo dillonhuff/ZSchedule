@@ -90,7 +90,16 @@ namespace ZSchedule {
       }
     }
 
-    // Add location constraints
+    // Add positivity constraints
+    for (auto node : app.getNodeIds()) {
+      auto sv = map_find(node, spaceVars);
+      auto tv = map_find(node, timeVars);
+
+      s.add(sv >= 0);
+      s.add(tv >= 0);
+    }
+
+    // Add space boundary constraints
     expr spaceBound = c.int_val(0);
     for (auto rc : resourceCounts) {
       string resourceName = rc.first;
@@ -103,6 +112,25 @@ namespace ZSchedule {
       }
 
       spaceBound = spaceBound + rc.second;
+    }
+
+    // Add overlap constraints
+    for (auto node0 : app.getNodeIds()) {
+      for (auto node1 : app.getNodeIds()) {
+        if (node0 != node1) {
+          string op0 = app.getNode(node0).getOpName();
+          string op1 = app.getNode(node1).getOpName();
+          if (op0 == op1) {
+            auto sv0 = map_find(node0, spaceVars);
+            auto sv1 = map_find(node1, spaceVars);
+
+            auto tv0 = map_find(node0, timeVars);
+            auto tv1 = map_find(node1, timeVars);
+
+            s.add((sv0 != sv1) || (tv0 != tv1));
+          }
+        }
+      }
     }
 
     cout << "Starting to check" << endl;
@@ -162,10 +190,6 @@ namespace ZSchedule {
       auto& ops = opSched.schedules[spacePosition];
 
       int timePosition = m.eval(map_find(node, timeVars)).get_numeral_int64();
-      // if (ops.operations.size() <= timePosition) {
-      //   ops.operations[timePosition] = timePosition;
-      // }
-
       cout << "Set time pos, to " << node << endl;
 
       ops.operations[timePosition] = node;
