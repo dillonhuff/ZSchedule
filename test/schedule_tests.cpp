@@ -41,6 +41,22 @@ namespace ZSchedule {
     Schedule result = createSchedule(cycleConstraint, computeCosts, areaConstraint, app);
 
     REQUIRE(result.units.size() == 3);
+
+    for (auto node : app.getNodeIds()) {
+      bool foundNode = false;
+      for (auto unit : result.units) {
+        for (auto sched : unit.second.schedules) {
+          for (auto n : sched.operations) {
+            if (node == n) {
+              foundNode = true;
+              break;
+            }
+          }
+        }
+      }
+
+      REQUIRE(foundNode);
+    }
   }
 
   // CoreIR::Module* buildModule(const STG& stg, CoreIR::Context* c) {

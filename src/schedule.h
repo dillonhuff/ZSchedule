@@ -76,6 +76,7 @@ namespace ZSchedule {
   void emitVerilog(const STG& stg, const std::string& fileName);
 
   class UnitSchedule {
+  public:
     std::vector<NodeId> operations;
   };
 
