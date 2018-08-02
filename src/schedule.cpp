@@ -6,6 +6,7 @@
 
 using namespace std;
 using namespace z3;
+using namespace dbhc;
 
 namespace ZSchedule {
 
@@ -34,4 +35,56 @@ namespace ZSchedule {
     return STG();
   }
 
+  Schedule createSchedule(const int cycleConstraint,
+                          const std::map<string, int>& resourceCosts,
+                          const int areaConstraint,
+                          const CDFG app) {
+    map<string, OpSchedule> sched;
+    for (auto nodeId : app.getNodeIds()) {
+      sched.insert({app.getNode(nodeId).getOpName(), {}});
+    }
+
+    // Here: create schedule constraints
+    context c;
+    solver s(c);
+    string time = "time_";
+    string space = "space_";
+
+    map<NodeId, expr> spaceVars;
+    map<NodeId, expr> timeVars;
+
+    for (auto node : app.getNodeIds()) {
+      expr t = c.int_const((time + to_string(node)).c_str());
+      expr s = c.int_const((space + to_string(node)).c_str());
+      spaceVars.insert({node, s});
+      timeVars.insert({node, t});
+    }
+
+    for (auto src : app.getNodeIds()) {
+
+      auto srcTime = map_find(src, timeVars);
+
+      for (auto dst : app.getReceivers(src)) {
+        auto dstTime = map_find(dst, timeVars);
+        s.add(srcTime <= dstTime);
+      }
+    }
+
+    expr maxTime = c.int_val(cycleConstraint);
+    expr maxArea = c.int_val(areaConstraint);
+
+    //s.add(10 >= x && x >= 0);
+    s.check();
+
+    model m = s.get_model();
+    for (auto node : app.getNodeIds()) {
+      cout << (space + to_string(node)) << " = " <<  m.eval(map_find(node, spaceVars)) << endl;
+      cout << (time + to_string(node)) << " = " <<  m.eval(map_find(node, timeVars)) << endl;
+    }
+    cout << "Got schedule" << endl;
+
+    return Schedule(sched);
+  }
+
+  
 }

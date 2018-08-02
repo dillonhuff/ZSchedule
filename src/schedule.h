@@ -1,4 +1,8 @@
+#pragma once
+
 #include "algorithm.h"
+
+using namespace dbhc;
 
 namespace ZSchedule {
 
@@ -14,7 +18,7 @@ namespace ZSchedule {
 
   typedef int NodeId;
 
-  bool isEmpty(const NodeId id) {
+  static inline bool isEmpty(const NodeId id) {
     return id == 0;
   }
 
@@ -34,6 +38,7 @@ namespace ZSchedule {
     NodeId nextNode;
 
     std::map<NodeId, DFGNode> nodes;
+    std::map<NodeId, std::set<NodeId> > receivers;
 
   public:
 
@@ -44,6 +49,7 @@ namespace ZSchedule {
       nextNode++;
 
       nodes.insert({val, DFGNode(cu)});
+      receivers.insert({val, {}});
 
       return val;
     }
@@ -61,7 +67,17 @@ namespace ZSchedule {
       return dbhc::map_find(id, nodes);
     }
 
+    std::set<NodeId> getReceivers(const NodeId n) const {
+      return dbhc::map_find(n, receivers);
+    }
+
     void directedEdge(const NodeId src, const NodeId dst) {
+      auto& rc = receivers[src];
+      rc.insert(dst);
+
+      assert(dbhc::contains_key(src, receivers));
+
+      assert(dbhc::elem(dst, dbhc::map_find(src, receivers)));
     }
 
   };
@@ -93,4 +109,8 @@ namespace ZSchedule {
     Schedule(const std::map<std::string, OpSchedule>& units_)  : units(units_) {}
   };
 
+  Schedule createSchedule(const int cycleConstraint,
+                          const std::map<std::string, int>& resourceCosts,
+                          const int areaConstraint,
+                          const CDFG app);
 }

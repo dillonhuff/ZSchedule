@@ -8,17 +8,6 @@ using namespace CoreIR;
 
 namespace ZSchedule {
 
-  Schedule createSchedule(const int cycleConstraint,
-                          const std::map<string, int>& resourceCosts,
-                          const int areaConstraint,
-                          const CDFG app) {
-    map<string, OpSchedule> sched;
-    for (auto nodeId : app.getNodeIds()) {
-      sched.insert({app.getNode(nodeId).getOpName(), {}});
-    }
-    return Schedule(sched);
-  }
-
   TEST_CASE("Schedule negate app") {
     CDFG app;
 
