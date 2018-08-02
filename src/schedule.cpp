@@ -180,11 +180,6 @@ namespace ZSchedule {
 
       cout << "space position = " << spacePosition << endl;
       cout << "opSched size   = " << opSched.schedules.size() << endl;
-
-      // if (opSched.schedules.size() <= spacePosition) {
-      //   opSched.schedules[spacePosition] = {};
-      // }
-
       cout << "Set space pos" << endl;
       
       auto& ops = opSched.schedules[spacePosition];
@@ -198,7 +193,7 @@ namespace ZSchedule {
 
     cout << "Final schedule" << endl;
     for (auto unit : sched) {
-      cout << "--- Unit" << endl;
+      cout << "--- " << unit.first << " Units" << endl;
       for (auto uSched : unit.second.schedules) {
         for (auto node : uSched.operations) {
           cout << node << " ";

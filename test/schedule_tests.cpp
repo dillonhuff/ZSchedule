@@ -81,7 +81,35 @@ namespace ZSchedule {
     int cycleConstraint = 5;
     int areaConstraint = 3;
 
-    Schedule result = createSchedule(cycleConstraint, computeCosts, areaConstraint, app);
+    Schedule result =
+      createSchedule(cycleConstraint, computeCosts, areaConstraint, app);
+
+    REQUIRE(result.units.size() == 3);
+    REQUIRE(scheduleContainsAllNodes(result, app));
+  }
+
+  TEST_CASE("Vector add") {
+    CDFG app;
+
+    ComputeUnit i("in", 0);
+    ComputeUnit add("add", 0);
+    ComputeUnit o("out", 0);
+
+    NodeId in0 = app.addNode("in0", i);
+    NodeId in1 = app.addNode("in1", i);
+    NodeId a0 = app.addNode("a0", add);
+    NodeId out = app.addNode("out0", o);
+
+    app.directedEdge(in0, a0);
+    app.directedEdge(in1, a0);
+    app.directedEdge(a0, out);
+
+    map<string, int> computeCosts{{"in", 100}, {"out", 1}, {"add", 1}};
+    int cycleConstraint = 5;
+    int areaConstraint = 104;
+
+    Schedule result =
+      createSchedule(cycleConstraint, computeCosts, areaConstraint, app);
 
     REQUIRE(result.units.size() == 3);
     REQUIRE(scheduleContainsAllNodes(result, app));
