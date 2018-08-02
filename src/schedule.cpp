@@ -105,8 +105,14 @@ namespace ZSchedule {
       spaceBound = spaceBound + rc.second;
     }
 
+    cout << "Starting to check" << endl;
     // SAT?
-    s.check();
+    auto satRes = s.check();
+
+    if (satRes == unsat) {
+      cout << "NO VIABLE SCHEDULE" << endl;
+      assert(false);
+    }
 
     // Extract and print model
     model m = s.get_model();
