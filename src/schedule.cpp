@@ -174,10 +174,12 @@ namespace ZSchedule {
 
     cout << "Final schedule" << endl;
     for (auto unit : sched) {
+      cout << "--- Unit" << endl;
       for (auto uSched : unit.second.schedules) {
         for (auto node : uSched.operations) {
-          cout << node << endl;
+          cout << node << " ";
         }
+        cout << endl;
       }
     }
 
