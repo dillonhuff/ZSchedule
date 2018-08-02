@@ -115,6 +115,37 @@ namespace ZSchedule {
     REQUIRE(scheduleContainsAllNodes(result, app));
   }
 
+  TEST_CASE("General width vector add experiment") {
+    CDFG app;
+
+    ComputeUnit i("in", 0);
+    ComputeUnit add("add", 0);
+    ComputeUnit o("out", 0);
+
+    int lim = 100;
+    for (int ind = 0; ind < lim; ind++) {
+      NodeId in0 = app.addNode("in0_" + to_string(ind), i);
+      NodeId in1 = app.addNode("in1_" + to_string(ind), i);
+      NodeId a0 = app.addNode("a0_" + to_string(ind), add);
+      NodeId out = app.addNode("out0_" + to_string(ind), o);
+
+      app.directedEdge(in0, a0);
+      app.directedEdge(in1, a0);
+      app.directedEdge(a0, out);
+
+    }
+
+    map<string, int> computeCosts{{"in", 8}, {"out", 1}, {"add", 1}};
+    int cycleConstraint = lim*3;
+    int areaConstraint = 10;
+
+    Schedule result =
+      createSchedule(cycleConstraint, computeCosts, areaConstraint, app);
+
+    REQUIRE(result.units.size() == 3);
+    REQUIRE(scheduleContainsAllNodes(result, app));
+  }
+  
   // CoreIR::Module* buildModule(const STG& stg, CoreIR::Context* c) {
   //   Type* tp = c->Record({{"in", c->BitIn()->Arr(16)},
   //         {"out", c->Bit()->Arr(16)}});
